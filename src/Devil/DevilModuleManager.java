@@ -22,11 +22,12 @@ class NewModuleLoadedEvent extends DevilEvent {
 
 class DevilModuleManager extends ConcurrentSkipListMap <String, Pair<DevilModule, Thread> > {
     private Devil devil;
-    private HashSet <Thread> unloadedThreads ();
+    private HashSet <Thread> unloadedThreads;
 
     public DevilModuleManager (Devil devil) {
         super (new StringComparator());
         this.devil = devil;
+        unloadedThreads = new HashSet<Thread> ();
     }
 
     private class ModuleThread extends Thread {
@@ -38,7 +39,7 @@ class DevilModuleManager extends ConcurrentSkipListMap <String, Pair<DevilModule
             module.runModule(devil);
         }
     }
-    public DevilModule put (String name) 
+    DevilModule put (String name) 
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Pair<DevilModule, Thread> modulePair = get (name);
         if (modulePair == null) {
@@ -49,6 +50,8 @@ class DevilModuleManager extends ConcurrentSkipListMap <String, Pair<DevilModule
             }
             modulePair = new Pair <DevilModule, Thread>();
             modulePair.first = (DevilModule) loaded_class.newInstance();
+            modulePair.first.setModuleManager(this);
+            modulePair.first.setModuleName(name);
             devil.raiseEvent(new NewModuleLoadedEvent(modulePair.first));
             modulePair.second = new ModuleThread(modulePair.first);
             put (name, modulePair );
@@ -57,19 +60,37 @@ class DevilModuleManager extends ConcurrentSkipListMap <String, Pair<DevilModule
         return modulePair.first;
 
     }
-    public DevilModule removeModule (String name) {
+
+    //This one is called by Devil and user. 
+    //It is meant that module pass through stopModule method.
+    DevilModule removeModule (String name) {
         Pair <DevilModule, Thread> modulePair = super.remove (name);
 
         if (modulePair == null) {
             return null;
         }
         modulePair.first.stopModule();
-        if (modulePair.second.getState() != Thread.State.TERMINATED) {
+        if ( modulePair.second != null &&
+                modulePair.second.getState() != Thread.State.TERMINATED) {
             unloadedThreads.add (modulePair.second);
         }
         return modulePair.first;
     }
-    public void removeAll () {
+
+    //This one is called by module itself (from stopModule method)
+    boolean removeModule (DevilModule module) {
+        Pair <DevilModule, Thread> modulePair = super.remove (module.getModuleName());
+
+        if ( (modulePair == null) || (modulePair.first != module) ) {
+            return false;
+        }
+        if (modulePair.second.getState() != Thread.State.TERMINATED) {
+            unloadedThreads.add (modulePair.second);
+        }
+        return true;
+    }
+
+    void removeAll () {
         while (!isEmpty()) {
             removeModule(firstKey());
         }
