@@ -1,7 +1,7 @@
 package Devil;
 
 import Devil.Event.*;
-import Devil.ClassManagement.*;
+import Devil.ModuleManagement.*;
 
 import java.util.concurrent.*;
 import java.util.*;
@@ -36,16 +36,16 @@ public class Devil {
     public void finish () {
         processor.finish();
     }
-    public DevilSharedClass loadClass (String classname) 
+    public DevilModule loadModule (String classname) 
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         ClassLoader loader = ClassLoader.getSystemClassLoader();
         Class loaded_class = loader.loadClass(classname);
         if (loaded_class == null) {
             return null;
         }
-        DevilSharedClass shared_class = (DevilSharedClass) loaded_class.newInstance();
-        shared_class.loadClass(this);
-        return shared_class;
+        DevilModule module = (DevilModule) loaded_class.newInstance();
+        module.runModule(this);
+        return module;
     }
 }
 
