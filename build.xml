@@ -1,0 +1,51 @@
+<project name="Devil" default="dist" basedir=".">
+    <description>
+        Complex messager with distributed structure.
+    </description>
+    <!-- set global properties for this build -->
+    <property name="src" location="src"/>
+    <property name="build" location="build"/>
+    <property name="dist"  location="dist"/>
+
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${build}"/>
+    </target>
+
+    <target name="compile" depends="init"
+            description="compile the source " >
+        <javac srcdir="${src}" destdir="${build}" includeantruntime="false"/>
+    </target>
+    
+    <target name="events_test" depends="compile"
+            description="generate event test">
+        <mkdir dir="${dist}/tests"/>
+        <jar jarfile="${dist}/tests/Devil_Events_Test-${DSTAMP}.jar" basedir="${build}">
+            <manifest>
+                <attribute name="Main-Class" value="Devil.tests.EventTest"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="modules_test" depends="compile"
+            description="generate module test">
+        <mkdir dir="${dist}/tests"/>
+        <jar jarfile="${dist}/tests/Devil_Modules_Test-${DSTAMP}.jar" basedir="${build}">
+            <manifest>
+                <attribute name="Main-Class" value="Devil.tests.ModuleLoadingTest"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="tests" depends="compile, events_test, modules_test"
+            description="generate all of tests" />
+    
+    <target name="dist" depends="compile, tests"
+            description="main target" />
+
+    <target name="clean"
+            description="clean up" >
+        <delete dir="${build}"/>
+        <delete dir="${dist}"/>
+    </target>
+</project>
