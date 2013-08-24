@@ -1,8 +1,7 @@
-package Devil.ModuleManagement;
+package Devil;
 
-import Devil.*;
-
-public interface DevilModule {
+public abstract class DevilModule {
+    private String moduleName;
     public abstract void runModule (Devil devil);
     public abstract void stopModule ();
 }

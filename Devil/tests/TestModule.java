@@ -1,7 +1,6 @@
 package Devil.tests;
 
 import Devil.*;
-import Devil.ModuleManagement.*;
 import java.lang.System;
 
 public class TestModule implements DevilModule {
