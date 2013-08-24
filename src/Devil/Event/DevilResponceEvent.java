@@ -1,21 +1,21 @@
 package Devil.Event;
 
 public abstract class DevilResponceEvent extends DevilEvent {
-    private RequestID id;
+    private DevilRequestID id;
 
-    public DevilResponceEvent (RequestID _id, String responce_type) {
+    public DevilResponceEvent (DevilRequestID id, String responce_type) {
         super ( "Responce_" + responce_type );
-        id = new RequestID(_id);
+        this.id = id;
     }
     public DevilResponceEvent (DevilResponceEvent source) {
         super (source);
-        id = new RequestID(source.id);
+        id = source.id;
     }
     
-    public RequestID getID () {
-        return id;
+    public DevilRequestID getID () {
+        return this.id;
     }
-    public boolean checkID (RequestID _id) {
-        return id.equal(_id);
+    public boolean checkID (DevilRequestID id) {
+        return this.id.equal(id);
     }
 }
