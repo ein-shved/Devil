@@ -8,26 +8,15 @@ import java.util.*;
 import java.lang.*;
 import java.lang.String;
 
-class NewModuleLoadedEvent extends DevilEvent {
-    private DevilModule module;
-    
-    public NewModuleLoadedEvent (DevilModule module) {
-        super ("New_Module_Loaded_Event");
-        this.module = module;
-    }
-    public DevilModule getModule () {
-        return this.module;
-    }
-}
-
-class DevilModuleManager extends ConcurrentSkipListMap <String, Pair<DevilModule, Thread> > {
+class DevilModuleManager extends LinkedBlockingQueue <String> insertRequests  {
     private Devil devil;
     private HashSet <Thread> unloadedThreads;
+    private ConcurrentSkipListMap <String, Pair<DevilModule, Thread> > modules;
 
     public DevilModuleManager (Devil devil) {
-        super (new StringComparator());
         this.devil = devil;
         unloadedThreads = new HashSet<Thread> ();
+        modules = new ConcurrentSkipListMap<String, Pair<DevilModule, Thread> > (new StringComparator());
     }
 
     private class ModuleThread extends Thread {
@@ -39,7 +28,7 @@ class DevilModuleManager extends ConcurrentSkipListMap <String, Pair<DevilModule
             module.runModule(devil);
         }
     }
-    DevilModule put (String name) 
+    private DevilModule queue_put (String name) 
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Pair<DevilModule, Thread> modulePair = get (name);
         if (modulePair == null) {
@@ -54,17 +43,16 @@ class DevilModuleManager extends ConcurrentSkipListMap <String, Pair<DevilModule
             modulePair.first.setModuleName(name);
             devil.raiseEvent(new NewModuleLoadedEvent(modulePair.first));
             modulePair.second = new ModuleThread(modulePair.first);
-            put (name, modulePair );
+            modules.put (name, modulePair );
             modulePair.second.start();
         }
         return modulePair.first;
-
     }
 
     //This one is called by Devil and user. 
     //It is meant that module pass through stopModule method.
     DevilModule removeModule (String name) {
-        Pair <DevilModule, Thread> modulePair = super.remove (name);
+        Pair <DevilModule, Thread> modulePair = modules.remove (name);
 
         if (modulePair == null) {
             return null;
@@ -93,6 +81,14 @@ class DevilModuleManager extends ConcurrentSkipListMap <String, Pair<DevilModule
     void removeAll () {
         while (!isEmpty()) {
             removeModule(firstKey());
+        }
+    }
+    void main () {
+        while (!super.isEmpty() || !modules.isEmpty()) {
+            String name =  super.poll(500, new TimeUnit() );
+            if (name != null) {
+                queue_put (name);
+            }
         }
     }
 }

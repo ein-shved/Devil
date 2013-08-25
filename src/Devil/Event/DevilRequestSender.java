@@ -51,4 +51,11 @@ public class DevilRequestSender {
         while (!handler.isHandled(false));
         return handler.getResponce();
     }
+    public static boolean subscribeResponcer (Devil devil, String request_type, DevilEventHandler responcer) {
+        return devil.subscribeForEvent("Responce_" + request_type, responcer);
+    }
+    public static boolean unsubscribeResponcer (Devil devil, String request_type, DevilEventHandler responcer) {
+        return devil.unsubscribeForEvent("Responce_" + request_type, responcer);
+    }
+
 }

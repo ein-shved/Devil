@@ -35,6 +35,9 @@ public class Devil {
     public boolean unsubscribeForEvent (String event_type, DevilEventHandler handler) {
         return processor.removeSubscription (event_type, handler);
     }
+    public void main () {
+        moduleManager.main();
+    }
     public void finish () {
         processor.finish();
         moduleManager.removeAll();

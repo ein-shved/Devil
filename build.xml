@@ -4,7 +4,7 @@
     </description>
     <!-- set global properties for this build -->
     <property name="src" location="src"/>
-    <property name="build" location="build"/>
+    <property name="build" location="src"/>
     <property name="dist"  location="dist"/>
 
     <target name="init">
@@ -37,7 +37,17 @@
         </jar>
     </target>
 
-    <target name="tests" depends="compile, events_test, modules_test"
+    <target name="request_test" depends="compile"
+            description="generate module test">
+        <mkdir dir="${dist}/tests"/>
+        <jar jarfile="${dist}/tests/Devil_Request_Test-${DSTAMP}.jar" basedir="${build}">
+            <manifest>
+                <attribute name="Main-Class" value="Devil.tests.RequestTest"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="tests" depends="compile, events_test, modules_test, request_test"
             description="generate all of tests" />
     
     <target name="dist" depends="compile, tests"
