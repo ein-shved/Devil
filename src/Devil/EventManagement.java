@@ -1,20 +1,14 @@
 package Devil;
 
 import Devil.Event.*;
+import Devil.util.*;
 
 import java.util.concurrent.*;
 import java.util.*;
 import java.lang.*;
 import java.lang.String;
 
-class StringComparator implements Comparator<String> {
-    public int compare (String o1, String o2) {
-        return o1.compareTo(o2);
-    }
-    public boolean equals (String o1, String o2) {
-        return o1.equals(o2);
-    }
-}
+
 
 class DevilEventQueue extends ConcurrentLinkedQueue<DevilEvent> {
     private DevilEventProcessor processor; 
