@@ -19,12 +19,34 @@
 
 package Devil;
 
+/**
+ * Class of module.
+ * <p>
+ * Each module is represented by .class file, which contains class,
+ * inherits from this one. To load module cpecify the class like in 
+ * 'java -cp . class' command.
+ */
+
 public abstract class Module {
     private String name;
     private ModuleManager manager;
+
+    /**
+     * Called when loaded.
+     * <p>
+     * This method must initialise and start module. It haven't to
+     * finish immideately. Even all module work can be done in this method.
+     *
+     * @param   devil   devil in person.
+     */
     public abstract void runModule (Devil devil);
 
-    //Must be called by children
+    /**
+     * Called befire removing module.
+     * <p>
+     * This method must be called by all inheritors and each inheritor mast
+     * stop the module work.
+     */
     public void stopModule () {
         manager.removeModule (this);
     }
@@ -36,6 +58,13 @@ public abstract class Module {
         this.manager = manager;
     }
 
+    /** 
+     * Module name getter.
+     *  <p>
+     * Returns the string, the module was loaded by.
+     *
+     * @return  module name.
+     */
     public String getModuleName () {
         return name;
     }

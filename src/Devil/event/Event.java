@@ -19,18 +19,43 @@
 
 package Devil.event;
 
+/**
+ * Events depends by the string type values.
+ * <p>
+ * To raise event with special type, you have to define new class, 
+ * extends this and pass its object to Devil.raiseEvent();
+ */
 public abstract class Event {
     private String type;
 
+    /**
+     * Constructs Event with specified type.
+     *
+     * @param   type    type of event.
+     */
     public Event (String type) {
         this.type = type;
     }
+
+    /**
+     * Constructs Event with type of source event.
+     *
+     * @param   source  source event.
+     */
+    public Event (Event source) {
+        this.type = source.type;
+    }
+
+    /**
+     * Type getter.
+     *
+     * @return      type of event.
+     */
     public String getType () {
         return type;
     }
-    public Event (Event source) {
-        type = source.type;
-    }
+
+
 }
 
 

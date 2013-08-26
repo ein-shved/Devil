@@ -20,17 +20,39 @@
 package Devil.event;
 import Devil.Module;
 
+/**
+ * Evenet raised by ModuleManager when is succeed do load module.
+ * <p>
+ * Event contains link to loaded module.
+ * 
+ * @see Event
+ * @see Module
+ * @see ModuleLoadingFailedEvent
+ */
 public class NewModuleLoadedEvent extends Event {
     private Module module;
 
+    /**
+     * Usefull method which statically return type of this Event.
+     * <p>
+     * "New_Module_Loaded_Event"
+     *
+     * @return  type of this event.
+     */
     public static String type () {
         return "New_Module_Loaded_Event";
     }
 
-    public NewModuleLoadedEvent (Module module) {
+    NewModuleLoadedEvent (Module module) {
         super (type());
         this.module = module;
     }
+
+    /**
+     * Module link getter.
+     *
+     * @return new loaded module.
+     */
     public Module getModule () {
         return this.module;
     }

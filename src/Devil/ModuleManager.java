@@ -29,7 +29,11 @@ import java.lang.String;
 
 class ModuleManager extends LinkedBlockingQueue <String> {
     private Devil devil;
+
+    //Here contains the modul thread, which didn't stop after module removing.
     private HashSet <Thread> unloadedThreads;
+
+    //Here contains modules' names, modules themself and their threads.
     private ConcurrentSkipListMap <String, Pair<Module, Thread> > modules;
     private volatile boolean finished;
 
@@ -39,6 +43,7 @@ class ModuleManager extends LinkedBlockingQueue <String> {
         modules = new ConcurrentSkipListMap<String, Pair<Module, Thread> > (new StringComparator());
     }
 
+    //Thread in which modul will be runned
     private class ModuleThread extends Thread {
         private Module module;
         public ModuleThread (Module module) {
@@ -48,29 +53,37 @@ class ModuleManager extends LinkedBlockingQueue <String> {
             module.runModule(devil);
         }
     }
+
+    //load module from queue.
     private Module queue_put (String name) 
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Pair<Module, Thread> modulePair = modules.get (name);
+        //Don't load modules with same names.
         if (modulePair == null) {
+            //Loading the class to the JVM.
             ClassLoader loader = ClassLoader.getSystemClassLoader();
             Class loaded_class = loader.loadClass(name);
             if (loaded_class == null) {
                 return null;
             }
+            //Prepare pair to store.
             modulePair = new Pair <Module, Thread>();
             modulePair.first = (Module) loaded_class.newInstance();
             modulePair.first.setModuleManager(this);
             modulePair.first.setModuleName(name);
-            devil.raiseEvent(new NewModuleLoadedEvent(modulePair.first));
             modulePair.second = new ModuleThread(modulePair.first);
+            //Rise Success event.
+            devil.raiseEvent(new NewModuleLoadedEvent(modulePair.first));
+            //Store module record.
             modules.put (name, modulePair );
+            //Run module.
             modulePair.second.start();
         }
         return modulePair.first;
     }
 
     //This one is called by Devil and user. 
-    //It is meant that module pass through stopModule method.
+    //It means that module didn't pass through stopModule method.
     Module removeModule (String name) {
         Pair <Module, Thread> modulePair = modules.remove (name);
 
@@ -105,7 +118,7 @@ class ModuleManager extends LinkedBlockingQueue <String> {
     }
     void main () {
         finished = false;
-        while ((!super.isEmpty() || !modules.isEmpty()) && !finished ) {
+        while (/*(!super.isEmpty() || !modules.isEmpty()) &&*/ !finished ) {
             String name = "";
             try {
                 name =  super.poll(500, TimeUnit.MILLISECONDS );
@@ -115,13 +128,14 @@ class ModuleManager extends LinkedBlockingQueue <String> {
             } catch (InterruptedException exc) {} //the only exception of the poll
              catch (Exception exc) {
                 if (!name.equals("")) {
-                    devil.raiseEvent (new ModuleLoadingFailedEvent(name, "Class not found"));
+                    devil.raiseEvent (new ModuleLoadingFailedEvent(name, "Can not load module")); 
                 }
             }
         }
     }
     void finish () {
         finished = true;
+        //Remove all many times because of multithreading.
         while (!super.isEmpty() || !modules.isEmpty()) {
             while (!super.isEmpty()) {
                 try {

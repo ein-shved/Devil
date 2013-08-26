@@ -28,7 +28,11 @@ import java.lang.*;
 import java.lang.String;
 
 
-
+/*
+ * Queue of events. Pulling by Event processor and
+ * pushing by Devil.
+ * TODO maybe BlockingSet is better?
+ */
 class EventQueue extends ConcurrentLinkedQueue<Event> {
     private EventProcessor processor; 
 
@@ -38,6 +42,7 @@ class EventQueue extends ConcurrentLinkedQueue<Event> {
     
     public boolean add (Event event) throws NullPointerException {
         boolean result = super.add (event);
+        //Make the processor to process the event.
         if (result != false) {
             processor.awake ();
         }
@@ -45,18 +50,26 @@ class EventQueue extends ConcurrentLinkedQueue<Event> {
     }
 }
 
+/*
+ * Event processor. Contains the map of subscribes.
+ * TODO start thread from Devil.main()
+ */
 class EventProcessor extends 
         ConcurrentSkipListMap <String, HashSet<EventHandler>> {
     private EventQueue queue;
 
+    //Thread of Event processing
     private class ProcessorThread extends Thread {
         private volatile boolean terminated;
+        
+        //awake == true - means it called by Devil, who sent new event.
+        //awake == false - means it called bt Thread to wait the queue.
         public synchronized void makeSleep (boolean awake)
                 throws InterruptedException {
             if (awake) {
                 this.notifyAll();
             } else {
-                this.wait(10);
+                this.wait(500);
             }
         }
         public void start () {
@@ -66,6 +79,7 @@ class EventProcessor extends
         public void run () {
             try {
                 while (this.isAlive() && !terminated) {
+                    //TODO change all of this
                     this.makeSleep(false);
                     if (queue == null) {
                         continue;
@@ -99,6 +113,7 @@ class EventProcessor extends
         }
     }
 
+    //Thread for handler invoke (If handled have not FAST flag)
     private class ConcurrentHandlerInvoker extends Thread {
         private EventHandler handler;
         private Event event;
@@ -121,8 +136,8 @@ class EventProcessor extends
         thread.start();
     }
 
-    public void setQueue (EventQueue _queue) {
-        queue = _queue;
+    public void setQueue (EventQueue queue) {
+        this.queue = queue;
     }
 
     public void awake () {
