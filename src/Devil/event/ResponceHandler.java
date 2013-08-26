@@ -17,20 +17,20 @@
  * along with Devil.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package Devil.Event;
+package Devil.event;
 import Devil.*;
 
-public abstract class DevilResponceHandler extends DevilEventHandler {
-    private DevilRequestID id;
+public abstract class ResponceHandler extends EventHandler {
+    private RequestID id;
     private Devil devil;
     private String type;
-    public DevilResponceHandler (DevilRequestID id, Flag ... flags) {
+    public ResponceHandler (RequestID id, Flag ... flags) {
         //TODO exclude ONCE
         super (flags);
         this.id = id;
     }
-    public void handle (DevilEvent event) {
-        DevilResponceEvent responce = (DevilResponceEvent) event;
+    public void handle (Event event) {
+        ResponceEvent responce = (ResponceEvent) event;
         if (responce.checkID(this.id)) {
             devil.unsubscribeForEvent(this.type, this);
             handleResponce (responce);
@@ -41,5 +41,5 @@ public abstract class DevilResponceHandler extends DevilEventHandler {
         this.type = "Responce_" + responce;
         return devil.subscribeForEvent(this.type, this);
     }
-    protected abstract void handleResponce (DevilResponceEvent responce);
+    protected abstract void handleResponce (ResponceEvent responce);
 }

@@ -19,7 +19,7 @@
 
 package Devil;
 
-import Devil.Event.*;
+import Devil.event.*;
 import Devil.util.*;
 
 import java.util.concurrent.*;
@@ -29,14 +29,14 @@ import java.lang.String;
 
 
 
-class DevilEventQueue extends ConcurrentLinkedQueue<DevilEvent> {
-    private DevilEventProcessor processor; 
+class EventQueue extends ConcurrentLinkedQueue<Event> {
+    private EventProcessor processor; 
 
-    public void setProcessor (DevilEventProcessor processor) {
+    public void setProcessor (EventProcessor processor) {
         this.processor = processor;
     }
     
-    public boolean add (DevilEvent event) throws NullPointerException {
+    public boolean add (Event event) throws NullPointerException {
         boolean result = super.add (event);
         if (result != false) {
             processor.awake ();
@@ -45,9 +45,9 @@ class DevilEventQueue extends ConcurrentLinkedQueue<DevilEvent> {
     }
 }
 
-class DevilEventProcessor extends 
-        ConcurrentSkipListMap <String, HashSet<DevilEventHandler>> {
-    private DevilEventQueue queue;
+class EventProcessor extends 
+        ConcurrentSkipListMap <String, HashSet<EventHandler>> {
+    private EventQueue queue;
 
     private class ProcessorThread extends Thread {
         private volatile boolean terminated;
@@ -71,15 +71,15 @@ class DevilEventProcessor extends
                         continue;
                     }
                     while (!queue.isEmpty()) {
-                        DevilEvent event = queue.poll();
-                        HashSet<DevilEventHandler> set = get(event.getType());
+                        Event event = queue.poll();
+                        HashSet<EventHandler> set = get(event.getType());
                         if (set == null) {
                             continue;
                         }
-                        Iterator<DevilEventHandler> it = set.iterator();
+                        Iterator<EventHandler> it = set.iterator();
                         while (it.hasNext()) {
-                            DevilEventHandler handler = it.next();
-                            if (handler.hasFlag(DevilEventHandler.Flag.ONCE)) {
+                            EventHandler handler = it.next();
+                            if (handler.hasFlag(EventHandler.Flag.ONCE)) {
                                 set.remove (handler);
                                 if (set.isEmpty() ) {
                                     remove(event.getType());
@@ -100,9 +100,9 @@ class DevilEventProcessor extends
     }
 
     private class ConcurrentHandlerInvoker extends Thread {
-        private DevilEventHandler handler;
-        private DevilEvent event;
-        ConcurrentHandlerInvoker (DevilEventHandler handler, DevilEvent event) {
+        private EventHandler handler;
+        private Event event;
+        ConcurrentHandlerInvoker (EventHandler handler, Event event) {
             this.handler = handler;
             this.event = event;
         }
@@ -113,15 +113,15 @@ class DevilEventProcessor extends
 
     private ProcessorThread thread;
 
-    public DevilEventProcessor () {
+    public EventProcessor () {
         super (new StringComparator());
         queue = null;
         thread = new ProcessorThread();
-        thread.setName ("Devil Event Processor");
+        thread.setName ("Devil.event Processor");
         thread.start();
     }
 
-    public void setQueue (DevilEventQueue _queue) {
+    public void setQueue (EventQueue _queue) {
         queue = _queue;
     }
 
@@ -131,10 +131,10 @@ class DevilEventProcessor extends
         } catch (InterruptedException exc) {};
     }
     
-    public boolean addSubscription (String type, DevilEventHandler handler) {
-        HashSet<DevilEventHandler> set;
+    public boolean addSubscription (String type, EventHandler handler) {
+        HashSet<EventHandler> set;
         if ( (set = super.get(type)) == null ) {
-            set = new HashSet<DevilEventHandler>();
+            set = new HashSet<EventHandler>();
             set.add (handler);
             super.put(type, set);
             return true;
@@ -142,8 +142,8 @@ class DevilEventProcessor extends
         return set.add (handler);
     }
 
-    public boolean removeSubscription (String type, DevilEventHandler handler) {
-        HashSet<DevilEventHandler> set;
+    public boolean removeSubscription (String type, EventHandler handler) {
+        HashSet<EventHandler> set;
         if ( (set = super.get(type)) == null ) {
             return false;
         }
@@ -158,8 +158,8 @@ class DevilEventProcessor extends
         thread.terminate();
     }
 
-    private synchronized void invokeHandler (DevilEventHandler handler, DevilEvent event) {
-        if (handler.hasFlag(DevilEventHandler.Flag.FAST)) {
+    private synchronized void invokeHandler (EventHandler handler, Event event) {
+        if (handler.hasFlag(EventHandler.Flag.FAST)) {
             handler.handle(event);
         } else {
             (new ConcurrentHandlerInvoker(handler,event)).start();

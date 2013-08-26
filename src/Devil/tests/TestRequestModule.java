@@ -18,23 +18,29 @@
  */
 
 package Devil.tests;
-import Devil.*;
-import Devil.Event.*;
+import Devil.event.EventHandler;
+import Devil.event.NewModuleLoadedEvent;
+import Devil.event.ModuleLoadingFailedEvent;
+import Devil.event.RequestEvent;
+import Devil.event.ResponceEvent;
+import Devil.event.RequestSender;
+import Devil.event.EventHandler;
+import Devil.Module;
 
-public class TestRequestModule extends DevilModule {
-    private Devil devil;
+public class TestRequestModule extends Module {
+    private Devil.Devil devil;
 
-    private class ResponceModuleEventHandler extends DevilEventHandler {
+    private class ResponceModuleEventHandler extends EventHandler {
         public ResponceModuleEventHandler () {
             super();
         }
-        public void handle (DevilEvent event) {
+        public void handle (Devil.event.Event event) {
             NewModuleLoadedEvent module_event = (NewModuleLoadedEvent) event;
-            DevilModule responceModule = module_event.getModule();
+            Module responceModule = module_event.getModule();
             System.out.println ("RequestModule have got module '" + responceModule.getModuleName()
                     + "' loaded event.");
             if (responceModule.getModuleName() == RequestTest.responceModuleName) {
-                DevilResponceEvent responce = DevilRequestSender.sendWaitRequest (devil, "Test");
+                ResponceEvent responce = RequestSender.sendWaitRequest (devil, "Test");
                 System.out.printf ("I have got responce with data:\n\t%s\n",
                         ((TestResponceEvent) responce).getResponceData());
                 devil.finish();
@@ -42,7 +48,7 @@ public class TestRequestModule extends DevilModule {
         }
     }
 
-    public void runModule(Devil devil) {
+    public void runModule(Devil.Devil devil) {
         this.devil = devil;
         devil.subscribeForEvent(NewModuleLoadedEvent.type(), new ResponceModuleEventHandler());
         devil.loadModuleRequest (RequestTest.responceModuleName);

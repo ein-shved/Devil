@@ -17,23 +17,21 @@
  * along with Devil.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package Devil.Event;
-import Devil.*;
+package Devil.event;
 
-public class NewModuleLoadedEvent extends DevilEvent {
-    private DevilModule module;
+public abstract class Event {
+    private String type;
 
-    public static String type () {
-        return "New_Module_Loaded_Event";
+    public Event (String type) {
+        this.type = type;
     }
-
-    public NewModuleLoadedEvent (DevilModule module) {
-        super (type());
-        this.module = module;
+    public String getType () {
+        return type;
     }
-    public DevilModule getModule () {
-        return this.module;
+    public Event (Event source) {
+        type = source.type;
     }
 }
+
 
 

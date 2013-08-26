@@ -17,20 +17,34 @@
  * along with Devil.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package Devil.Event;
+package Devil.event;
 
-public class DevilRequestID {
-    private long value;
-    
-    public DevilRequestID (long value) {
-        this.value = value;
+import java.util.*;
+
+public abstract class EventHandler {
+    public enum Flag {
+        ONCE,
+        FAST;
     }
-    public DevilRequestID ( DevilRequestID source ) {
-        this.value = source.value;
+    EnumSet<Flag> flags; 
+    public EventHandler (Flag ... flags) {
+        if ( flags.length == 0) {
+            this.flags = EnumSet.noneOf (Flag.class);
+        } else {
+            this.flags = EnumSet.of (flags[0], Arrays.copyOfRange(flags, 1, flags.length));
+        }
     }
-    public boolean equal ( DevilRequestID id) {
-        return this.value == id.value;
+    public void setFlag (Flag flag) {
+        this.flags.add(flag);
     }
+    public void unsetFlag (Flag flag) {
+        this.flags.remove(flag);
+    }
+    public boolean hasFlag (Flag flag) {
+        return this.flags.contains(flag);
+    }
+
+
+
+    public abstract void handle (Event event);
 }
-
-

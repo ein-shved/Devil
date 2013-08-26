@@ -20,7 +20,7 @@
 package Devil.tests;
 
 import Devil.*;
-import Devil.Event.*;
+import Devil.event.*;
 import Devil.util.*;
 
 
@@ -28,24 +28,24 @@ public class RequestTest {
     static String requestModuleName = "Devil.tests.TestRequestModule";
     static String responceModuleName = "Devil.tests.TestResponceModule";
 
-    private static class ModuleFailedHandler extends DevilEventHandler {
+    private static class ModuleFailedHandler extends EventHandler {
         public ModuleFailedHandler () {
             super (Flag.FAST);
         }
-        public void handle (DevilEvent event) {
+        public void handle (Event event) {
             ModuleLoadingFailedEvent failure = (ModuleLoadingFailedEvent) event;
             System.out.println ("Can not load module " + failure.getRequest() + 
                     "\nBecause "+ failure.getDescription());
         }
     }
 
-    private static class ModuleLoadedHandler extends DevilEventHandler {
+    private static class ModuleLoadedHandler extends EventHandler {
         public ModuleLoadedHandler () {
             super (Flag.FAST);
         }
-        public void handle (DevilEvent event) {
+        public void handle (Event event) {
             NewModuleLoadedEvent load_event = (NewModuleLoadedEvent) event;
-            DevilModule module = load_event.getModule();
+            Module module = load_event.getModule();
             System.out.println ("Module loaded " + module.getModuleName()); 
         }
     }

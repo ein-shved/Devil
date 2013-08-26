@@ -17,26 +17,20 @@
  * along with Devil.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package Devil;
+package Devil.event;
 
-public abstract class DevilModule {
-    private String name;
-    private DevilModuleManager manager;
-    public abstract void runModule (Devil devil);
-
-    //Must be called by children
-    public void stopModule () {
-        manager.removeModule (this);
+public class RequestID {
+    private long value;
+    
+    public RequestID (long value) {
+        this.value = value;
     }
-
-    void setModuleName (String name) {
-        this.name = name;
+    public RequestID ( RequestID source ) {
+        this.value = source.value;
     }
-    void setModuleManager (DevilModuleManager manager) {
-        this.manager = manager;
-    }
-
-    public String getModuleName () {
-        return name;
+    public boolean equal ( RequestID id) {
+        return this.value == id.value;
     }
 }
+
+

@@ -20,7 +20,7 @@
 package Devil.tests;
 
 import Devil.*;
-import Devil.Event.*;
+import Devil.event.*;
 
 import java.lang.System;
 

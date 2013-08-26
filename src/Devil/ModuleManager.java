@@ -19,7 +19,7 @@
 
 package Devil;
 
-import Devil.Event.*;
+import Devil.event.*;
 import Devil.util.*;
 
 import java.util.concurrent.*;
@@ -27,38 +27,38 @@ import java.util.*;
 import java.lang.*;
 import java.lang.String;
 
-class DevilModuleManager extends LinkedBlockingQueue <String> {
+class ModuleManager extends LinkedBlockingQueue <String> {
     private Devil devil;
     private HashSet <Thread> unloadedThreads;
-    private ConcurrentSkipListMap <String, Pair<DevilModule, Thread> > modules;
+    private ConcurrentSkipListMap <String, Pair<Module, Thread> > modules;
     private volatile boolean finished;
 
-    public DevilModuleManager (Devil devil) {
+    public ModuleManager (Devil devil) {
         this.devil = devil;
         unloadedThreads = new HashSet<Thread> ();
-        modules = new ConcurrentSkipListMap<String, Pair<DevilModule, Thread> > (new StringComparator());
+        modules = new ConcurrentSkipListMap<String, Pair<Module, Thread> > (new StringComparator());
     }
 
     private class ModuleThread extends Thread {
-        private DevilModule module;
-        public ModuleThread (DevilModule module) {
+        private Module module;
+        public ModuleThread (Module module) {
             this.module = module;
         };
         public void run () {
             module.runModule(devil);
         }
     }
-    private DevilModule queue_put (String name) 
+    private Module queue_put (String name) 
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        Pair<DevilModule, Thread> modulePair = modules.get (name);
+        Pair<Module, Thread> modulePair = modules.get (name);
         if (modulePair == null) {
             ClassLoader loader = ClassLoader.getSystemClassLoader();
             Class loaded_class = loader.loadClass(name);
             if (loaded_class == null) {
                 return null;
             }
-            modulePair = new Pair <DevilModule, Thread>();
-            modulePair.first = (DevilModule) loaded_class.newInstance();
+            modulePair = new Pair <Module, Thread>();
+            modulePair.first = (Module) loaded_class.newInstance();
             modulePair.first.setModuleManager(this);
             modulePair.first.setModuleName(name);
             devil.raiseEvent(new NewModuleLoadedEvent(modulePair.first));
@@ -71,8 +71,8 @@ class DevilModuleManager extends LinkedBlockingQueue <String> {
 
     //This one is called by Devil and user. 
     //It is meant that module pass through stopModule method.
-    DevilModule removeModule (String name) {
-        Pair <DevilModule, Thread> modulePair = modules.remove (name);
+    Module removeModule (String name) {
+        Pair <Module, Thread> modulePair = modules.remove (name);
 
         if (modulePair == null) {
             return null;
@@ -86,8 +86,8 @@ class DevilModuleManager extends LinkedBlockingQueue <String> {
     }
 
     //This one is called by module itself (from stopModule method)
-    boolean removeModule (DevilModule module) {
-        Pair <DevilModule, Thread> modulePair = modules.remove (module.getModuleName());
+    boolean removeModule (Module module) {
+        Pair <Module, Thread> modulePair = modules.remove (module.getModuleName());
 
         if ( (modulePair == null) || (modulePair.first != module) ) {
             return false;

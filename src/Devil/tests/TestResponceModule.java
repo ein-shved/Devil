@@ -19,10 +19,10 @@
 
 package Devil.tests;
 import Devil.*;
-import Devil.Event.*;
+import Devil.event.*;
 
-class TestResponceEvent extends DevilResponceEvent {
-    public TestResponceEvent (DevilRequestID id) {
+class TestResponceEvent extends ResponceEvent {
+    public TestResponceEvent (RequestID id) {
         super (id, "Test");
     }
     public String getResponceData () {
@@ -31,18 +31,18 @@ class TestResponceEvent extends DevilResponceEvent {
 }
 
 
-public class TestResponceModule extends DevilModule {
+public class TestResponceModule extends Module {
     private Devil devil;
 
-    private class TestResponcer extends DevilEventHandler {
+    private class TestResponcer extends EventHandler {
         public TestResponcer () {
             super (Flag.FAST);
         }
-        public void handle (DevilEvent event) {
+        public void handle (Event event) {
             System.out.println ("ResponceModule have got event");
             if (event.getType().equals("Request_Test")) {
                 System.out.println ("It was event of correct type");
-                DevilRequestEvent request = (DevilRequestEvent) event;
+                RequestEvent request = (RequestEvent) event;
                 devil.raiseEvent (new TestResponceEvent(request.getID()));
             }
         }

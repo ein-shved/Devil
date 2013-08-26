@@ -17,21 +17,24 @@
  * along with Devil.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package Devil.Event;
+package Devil.event;
 
-public abstract class DevilEvent {
-    private String type;
+public abstract class ResponceEvent extends Event {
+    private RequestID id;
 
-    public DevilEvent (String _type) {
-        type = _type;
+    public ResponceEvent (RequestID id, String responce_type) {
+        super ( "Responce_" + responce_type );
+        this.id = id;
     }
-    public String getType () {
-        return type;
+    public ResponceEvent (ResponceEvent source) {
+        super (source);
+        id = source.id;
     }
-    public DevilEvent (DevilEvent source) {
-        type = source.type;
+    
+    public RequestID getID () {
+        return this.id;
+    }
+    public boolean checkID (RequestID id) {
+        return this.id.equal(id);
     }
 }
-
-
-

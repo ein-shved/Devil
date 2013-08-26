@@ -20,34 +20,34 @@
 package Devil.tests;
 
 import Devil.*;
-import Devil.Event.*;
+import Devil.event.*;
 
 import java.lang.System;
 
-class TestEvent1 extends DevilEvent {
+class TestEvent1 extends Event {
     public TestEvent1 () {
         super ("Test_Event_One");
     }
 }
 
-class TestEvent2 extends DevilEvent {
+class TestEvent2 extends Event {
     public TestEvent2 () {
         super ("Test_Event_Two");
     }
 }
 
-class TestEventHandler1 extends DevilEventHandler {
-    public void handle (DevilEvent event){
+class TestEventHandler1 extends EventHandler {
+    public void handle (Event event){
         System.out.printf("TestEventHandler1 got event of type %s\n", event.getType());
     }
 }
 
-class TestEventHandler2 extends DevilEventHandler {
+class TestEventHandler2 extends EventHandler {
     public TestEventHandler2 () {
-        super (DevilEventHandler.Flag.ONCE,
-            DevilEventHandler.Flag.FAST);
+        super (EventHandler.Flag.ONCE,
+            EventHandler.Flag.FAST);
     }
-    public void handle (DevilEvent event){
+    public void handle (Event event){
         System.out.printf("TestEventHandler2 got event of type %s\n", event.getType());
     }
 }

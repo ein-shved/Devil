@@ -17,21 +17,21 @@
  * along with Devil.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package Devil.Event;
+package Devil.event;
 import Devil.*;
 
-public class DevilRequestSender {
-    private static class Request extends DevilRequestEvent {
-        public Request (DevilRequestID id, String type) {
+public class RequestSender {
+    private static class Request extends RequestEvent {
+        public Request (RequestID id, String type) {
             super(id, type);
         }
     }
 
-    private static class Handler extends DevilResponceHandler {
+    private static class Handler extends ResponceHandler {
         volatile boolean handled;
-        private DevilResponceEvent responce;
+        private ResponceEvent responce;
 
-        public Handler(DevilRequestID id) {
+        public Handler(RequestID id) {
             super(id, Flag.FAST);
         }
         public synchronized boolean isHandled (boolean set) {
@@ -48,21 +48,21 @@ public class DevilRequestSender {
             return handled;
         }
 
-        protected void handleResponce (DevilResponceEvent responce) {
+        protected void handleResponce (ResponceEvent responce) {
             isHandled(true);
             this.responce = responce;
         }
 
-        public DevilResponceEvent getResponce () {
+        public ResponceEvent getResponce () {
             return this.responce;
         }
     }
 
     private static volatile long id_counter = 0;
-    public static DevilResponceEvent sendWaitRequest (Devil devil, String request_type) {
-        DevilRequestID id = new DevilRequestID(id_counter++);
+    public static ResponceEvent sendWaitRequest (Devil devil, String request_type) {
+        RequestID id = new RequestID(id_counter++);
         Handler handler = new Handler(id);
-        DevilRequestEvent request = new Request(id, request_type);
+        RequestEvent request = new Request(id, request_type);
 
         handler.subscribe (devil, request_type);
         devil.raiseEvent (request);
@@ -70,10 +70,10 @@ public class DevilRequestSender {
         while (!handler.isHandled(false));
         return handler.getResponce();
     }
-    public static boolean subscribeResponcer (Devil devil, String request_type, DevilEventHandler responcer) {
+    public static boolean subscribeResponcer (Devil devil, String request_type, EventHandler responcer) {
         return devil.subscribeForEvent("Responce_" + request_type, responcer);
     }
-    public static boolean unsubscribeResponcer (Devil devil, String request_type, DevilEventHandler responcer) {
+    public static boolean unsubscribeResponcer (Devil devil, String request_type, EventHandler responcer) {
         return devil.unsubscribeForEvent("Responce_" + request_type, responcer);
     }
 

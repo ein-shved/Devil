@@ -17,28 +17,26 @@
  * along with Devil.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package Devil.Event;
-import Devil.*;
+package Devil;
 
-public class ModuleLoadingFailedEvent extends DevilEvent {
+public abstract class Module {
     private String name;
-    private String description;
+    private ModuleManager manager;
+    public abstract void runModule (Devil devil);
 
-    public static String type () {
-        return "Module_Loading_Failed_Event";
+    //Must be called by children
+    public void stopModule () {
+        manager.removeModule (this);
     }
 
-    public ModuleLoadingFailedEvent (String request, String description) {
-        super (type());
-        this.name = request;
-        this.description = description;
+    void setModuleName (String name) {
+        this.name = name;
     }
-    public String getRequest () {
-        return this.name;
+    void setModuleManager (ModuleManager manager) {
+        this.manager = manager;
     }
-    public String getDescription () {
-        return this.description;
+
+    public String getModuleName () {
+        return name;
     }
 }
-
-
