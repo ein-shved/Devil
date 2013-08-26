@@ -8,10 +8,11 @@ import java.util.*;
 import java.lang.*;
 import java.lang.String;
 
-class DevilModuleManager extends LinkedBlockingQueue <String> insertRequests  {
+class DevilModuleManager extends LinkedBlockingQueue <String> {
     private Devil devil;
     private HashSet <Thread> unloadedThreads;
     private ConcurrentSkipListMap <String, Pair<DevilModule, Thread> > modules;
+    private volatile boolean finished;
 
     public DevilModuleManager (Devil devil) {
         this.devil = devil;
@@ -30,7 +31,7 @@ class DevilModuleManager extends LinkedBlockingQueue <String> insertRequests  {
     }
     private DevilModule queue_put (String name) 
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        Pair<DevilModule, Thread> modulePair = get (name);
+        Pair<DevilModule, Thread> modulePair = modules.get (name);
         if (modulePair == null) {
             ClassLoader loader = ClassLoader.getSystemClassLoader();
             Class loaded_class = loader.loadClass(name);
@@ -67,7 +68,7 @@ class DevilModuleManager extends LinkedBlockingQueue <String> insertRequests  {
 
     //This one is called by module itself (from stopModule method)
     boolean removeModule (DevilModule module) {
-        Pair <DevilModule, Thread> modulePair = super.remove (module.getModuleName());
+        Pair <DevilModule, Thread> modulePair = modules.remove (module.getModuleName());
 
         if ( (modulePair == null) || (modulePair.first != module) ) {
             return false;
@@ -78,17 +79,37 @@ class DevilModuleManager extends LinkedBlockingQueue <String> insertRequests  {
         return true;
     }
 
-    void removeAll () {
-        while (!isEmpty()) {
-            removeModule(firstKey());
+    void stopAllModules () {
+        while (!modules.isEmpty()) {
+            removeModule(modules.firstKey());
         }
     }
     void main () {
-        while (!super.isEmpty() || !modules.isEmpty()) {
-            String name =  super.poll(500, new TimeUnit() );
-            if (name != null) {
-                queue_put (name);
+        finished = false;
+        while ((!super.isEmpty() || !modules.isEmpty()) && !finished ) {
+            String name = "";
+            try {
+                name =  super.poll(500, TimeUnit.MILLISECONDS );
+                if (name != null) {
+                    queue_put (name);
+                }
+            } catch (InterruptedException exc) {} //the only exception of the poll
+             catch (Exception exc) {
+                if (!name.equals("")) {
+                    devil.raiseEvent (new ModuleLoadingFailedEvent(name, "Class not found"));
+                }
             }
+        }
+    }
+    void finish () {
+        finished = true;
+        while (!super.isEmpty() || !modules.isEmpty()) {
+            while (!super.isEmpty()) {
+                try {
+                    super.poll(0,TimeUnit.NANOSECONDS);
+                } catch (Exception exc) {};
+            }
+            this.stopAllModules();
         }
     }
 }

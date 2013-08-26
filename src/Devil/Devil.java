@@ -11,6 +11,7 @@ public class Devil {
     DevilEventProcessor processor;
     DevilEventQueue queue;
     DevilModuleManager moduleManager;
+    private volatile boolean finished;
 
     public Devil () {
         processor = new DevilEventProcessor ();
@@ -30,21 +31,37 @@ public class Devil {
     }
 
     public boolean subscribeForEvent (String event_type, DevilEventHandler handler) {
+        if (finished) {
+            return false;
+        }
         return processor.addSubscription (event_type, handler);
     }
     public boolean unsubscribeForEvent (String event_type, DevilEventHandler handler) {
+        if (finished) {
+            return false;
+        }
         return processor.removeSubscription (event_type, handler);
     }
     public void main () {
+        finished = false;
         moduleManager.main();
     }
     public void finish () {
+        finished = true;
         processor.finish();
-        moduleManager.removeAll();
+        moduleManager.finish();
     }
-    public DevilModule loadModule (String classname) 
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        return moduleManager.put (classname);
+    //succeed to put request or not
+    public boolean loadModuleRequest (String classname) {
+        if (finished) {
+            return false;
+        }
+        try {
+            moduleManager.put (classname);
+        } catch (InterruptedException exc) {
+            return false;
+        }
+        return true;
     }
 
 }

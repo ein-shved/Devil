@@ -9,7 +9,7 @@ public class ModuleLoadingTest {
     public static void main (String [] args) {
         Devil devil = new Devil();
         try {
-            devil.loadModule ("Devil.tests.TestModule");
+            devil.loadModuleRequest ("Devil.tests.TestModule");
         } catch (Exception exc) {
             System.out.println (exc.toString() + " exception was caughted.");
             StackTraceElement [] stackTrace = exc.getStackTrace();

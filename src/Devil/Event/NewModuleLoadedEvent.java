@@ -9,7 +9,7 @@ public class NewModuleLoadedEvent extends DevilEvent {
     }
 
     public NewModuleLoadedEvent (DevilModule module) {
-        super ("New_Module_Loaded_Event");
+        super (type());
         this.module = module;
     }
     public DevilModule getModule () {
