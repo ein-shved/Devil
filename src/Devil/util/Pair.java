@@ -19,11 +19,33 @@
 
 package Devil.util;
 
+/**
+ * The pair of two objects like std::pair
+ */
+
 public class Pair <A,B> {
+    /**
+     * First element in pair.
+     */
     public A first = null;
+
+    /**
+     * Second element in pair.
+     */
     public B second = null;
+
+    /**
+     * Constructor of pair of nulls.
+     */
     public Pair () {
     }
+
+    /**
+     * Constructor of pair.
+     *
+     * @param   first
+     * @param   second
+     */
     public Pair (A first, B second) {
         this.first = first;
         this.second = second;

@@ -21,10 +21,28 @@ package Devil.util;
 
 import java.util.Comparator;
 
+/**
+ * Comparator for string.
+ *
+ * @see Comparator
+ */
 public class StringComparator implements Comparator<String> {
+    /**
+     * Calls String.CompareTO
+     *
+     * @see String.compareTo
+     * @see Comparator
+     */
     public int compare (String o1, String o2) {
         return o1.compareTo(o2);
     }
+
+    /**
+     * Calls String.equals
+     *
+     * @see String.equals
+     * @see Comparator
+     */
     public boolean equals (String o1, String o2) {
         return o1.equals(o2);
     }

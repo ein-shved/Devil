@@ -18,23 +18,17 @@
  */
 
 package Devil.tests;
-import Devil.event.EventHandler;
-import Devil.event.NewModuleLoadedEvent;
-import Devil.event.ModuleLoadingFailedEvent;
-import Devil.event.RequestEvent;
-import Devil.event.ResponceEvent;
-import Devil.event.RequestSender;
-import Devil.event.EventHandler;
-import Devil.Module;
+import Devil.event.*;
+import Devil.*;
 
 public class TestRequestModule extends Module {
-    private Devil.Devil devil;
+    private Devil devil;
 
     private class ResponceModuleEventHandler extends EventHandler {
         public ResponceModuleEventHandler () {
             super();
         }
-        public void handle (Devil.event.Event event) {
+        public void handle (Event event) {
             NewModuleLoadedEvent module_event = (NewModuleLoadedEvent) event;
             Module responceModule = module_event.getModule();
             System.out.println ("RequestModule have got module '" + responceModule.getModuleName()
@@ -48,7 +42,7 @@ public class TestRequestModule extends Module {
         }
     }
 
-    public void runModule(Devil.Devil devil) {
+    public void runModule(Devil devil) {
         this.devil = devil;
         devil.subscribeForEvent(NewModuleLoadedEvent.type(), new ResponceModuleEventHandler());
         devil.loadModuleRequest (RequestTest.responceModuleName);

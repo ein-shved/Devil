@@ -17,27 +17,44 @@
  * along with Devil.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package Devil.event;
-import Devil.*;
+package Devil;
+import Devil.event.*;
 
-public class ModuleLoadingFailedEvent extends Event {
-    private String name;
-    private String description;
+/**
+ * Evenet raised by ModuleManager when it succeed do load module.
+ * <p>
+ * Event contains link to loaded module.
+ * 
+ * @see Event
+ * @see Module
+ * @see ModuleLoadingFailedEvent
+ */
+public class NewModuleLoadedEvent extends Event {
+    private Module module;
 
+    /**
+     * Usefull method which statically return type of this Event.
+     * <p>
+     * "New_Module_Loaded_Event"
+     *
+     * @return  type of this event.
+     */
     public static String type () {
-        return "Module_Loading_Failed_Event";
+        return "New_Module_Loaded_Event";
     }
 
-    public ModuleLoadingFailedEvent (String request, String description) {
+    NewModuleLoadedEvent (Module module) {
         super (type());
-        this.name = request;
-        this.description = description;
+        this.module = module;
     }
-    public String getRequest () {
-        return this.name;
-    }
-    public String getDescription () {
-        return this.description;
+
+    /**
+     * Module link getter.
+     *
+     * @return new loaded module.
+     */
+    public Module getModule () {
+        return this.module;
     }
 }
 

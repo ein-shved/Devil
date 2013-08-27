@@ -19,15 +19,42 @@
 
 package Devil.event;
 
+/**
+ * Request identifier.
+ * <p>
+ * RequestID is simple long value.
+ *
+ * @see RequestEvent
+ * @see ResponceEvent
+ */
+
 public class RequestID {
     private long value;
-    
+
+    /**
+     * Constructs RequestID with its walue.
+     *
+     * @param   value   
+     */
     public RequestID (long value) {
         this.value = value;
     }
+
+    /**
+     * Constructs RequestID as copy of source.
+     *
+     * @param   source      RequestID value of which will be copied
+     */
     public RequestID ( RequestID source ) {
         this.value = source.value;
     }
+
+    /**
+     * Compare with enother id
+     *
+     * @param   id          RequestID to compare with.
+     * @return              true if id is equal to current.  
+     */
     public boolean equal ( RequestID id) {
         return this.value == id.value;
     }
