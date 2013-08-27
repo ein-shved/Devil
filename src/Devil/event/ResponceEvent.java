@@ -34,7 +34,16 @@ package Devil.event;
 
 public abstract class ResponceEvent extends Event {
     private RequestID id;
-    
+
+    /**
+     * Return prefix of all ResponceEvents' type.
+     *
+     * @return  common responce prefix
+     */
+    public static String prefix () {
+        return "Responce_";
+    }
+
     /**
      * Constructor of responce.
      * <p> 
@@ -45,7 +54,7 @@ public abstract class ResponceEvent extends Event {
      * @param   request_type    type of request.
      */
     public ResponceEvent (RequestID id, String responce_type) {
-        super ( "Responce_" + responce_type );
+        super ( prefix() + responce_type );
         this.id = id;
     }
 
@@ -56,9 +65,23 @@ public abstract class ResponceEvent extends Event {
      *
      * @param   source  source request
      */
-    public ResponceEvent (ResponceEvent source) {
-        super (source);
-        id = source.id;
+    public ResponceEvent (Event source) 
+            throws ClassCastException{
+        super ();
+        try {
+            RequestEvent request = (RequestEvent) source;
+            this.id = request.getID();
+            String type = source.getType();
+            String rqst_prefix = RequestEvent.prefix();
+            if (!type.startsWith(rqst_prefix)) {
+                throw new ClassCastException ("Wrong ResponceEvent type suffix");
+            }
+            super.setType (type.replaceFirst(rqst_prefix, prefix()));
+            return;
+        } catch (ClassCastException exc) {}
+        ResponceEvent responce = (ResponceEvent) source;
+        super.setType (source.getType());
+        this.id = responce.id;
     }
    
     /**
@@ -72,13 +95,30 @@ public abstract class ResponceEvent extends Event {
     }
 
     /**
-     * Compare request's id with passed id.
-     * TODO copmare with Event class.
+     * Compare responce's id with passed id.
      *
      * @param   id      id to compare with
      * @return          true if request's id equals the passed id, false otherwize.
      */
     public boolean checkID (RequestID id) {
         return this.id.equal(id);
+    }
+    
+    /**
+     * Compare responce's id with id of passed event.
+     *
+     * @param   id      id to compare with
+     * @return          true if event is Request or Responce and this.id equals the passed event id, false otherwize.
+     */
+    public boolean checkID (Event event) {
+        try {
+            RequestEvent request = (RequestEvent) event;
+            return request.checkID(this.id);
+        } catch (ClassCastException exc) {}
+        try {
+            ResponceEvent responce = (ResponceEvent) event;
+            return responce.id == this.id;
+        } catch (ClassCastException exc) {}
+        return false;
     }
 }

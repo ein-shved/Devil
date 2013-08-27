@@ -36,6 +36,15 @@ public abstract class RequestEvent extends Event {
     private RequestID id;
 
     /**
+     * Return prefix of all RequestEvents' type.
+     *
+     * @return  common request prefix
+     */
+    public static String prefix () {
+        return "Request_";
+    }
+
+    /**
      * Constructor of request.
      * <p> 
      * Recives ID of request and type of request. The rusult type of event will be "Request_" + request_type.
@@ -46,20 +55,36 @@ public abstract class RequestEvent extends Event {
      * @see     RequestSender
      */
     public RequestEvent (RequestID id, String request_type) {
-        super ( "Request_" + request_type );
+        super ( prefix() + request_type );
         this.id = id;
     }
 
     /**
      * Constructs request as copy.
      * <p>
-     * TODO copy for Event class.
+     * If source is RequestEvent or ResponceEvent id will be copied, else ClassCastException
+     * will be thrown.
      *
-     * @param   source  source request
+     * @param   source              source request
+     * @throws  ClassCastException  if source is not RequestEvent or ResponceEvent.
      */
-    public RequestEvent (RequestEvent source) {
-        super (source);
-        this.id = source.id;
+    public RequestEvent (Event source)
+            throws ClassCastException {
+        super ();
+        try {
+            RequestEvent request = (RequestEvent) source;
+            this.id = request.id;
+            super.setType (source.getType());
+            return;
+        } catch (ClassCastException exc) {}
+        ResponceEvent responce = (ResponceEvent) source;
+        String type = source.getType();
+        String resp_prefix = ResponceEvent.prefix();
+        if (!type.startsWith(resp_prefix)) {
+            throw new ClassCastException ("Wrong ResponceEvent type suffix");
+        }
+        super.setType (type.replaceFirst(resp_prefix, prefix()));
+        this.id = responce.getID();
     }
 
     /**
@@ -74,12 +99,29 @@ public abstract class RequestEvent extends Event {
 
     /**
      * Compare request's id with passed id.
-     * TODO copmare with Event class.
      *
      * @param   id      id to compare with
      * @return          true if request's id equals the passed id, false otherwize.
      */
     public boolean checkID (RequestID id) {
         return this.id.equal(id);
+    }
+
+    /**
+     * Compare request's id with id of passed event.
+     *
+     * @param   id      id to compare with
+     * @return          true if event is Request or Responce and this.id equals the passed event id, false otherwize.
+     */
+    public boolean checkID (Event event) {
+         try {
+            ResponceEvent responce = (ResponceEvent) event;
+            return responce.checkID(this.id);
+        } catch (ClassCastException exc) {}
+        try {
+            RequestEvent request = (RequestEvent) event;
+            return this.id == request.id;
+        } catch (ClassCastException exc) {}
+        return false;
     }
 }

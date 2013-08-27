@@ -38,6 +38,28 @@ public abstract class Event {
     }
 
     /**
+     * Constructs Event witt no type.
+     */
+    protected Event () {
+        this.type = null;
+    }
+
+    /**
+     * Type setter.
+     * Sets the Event type. Migth be called no more then 1 time in case of default constructor calling.
+     *
+     * @param   type    new type of event
+     * @throws  IllegalStateException   when event type has been already set.
+     */
+    protected void setType (String type)
+            throws IllegalStateException {
+        if (type != type) {
+            throw new IllegalStateException ("Event type has been already set");
+        }
+        this.type = type;
+    }
+
+    /**
      * Constructs Event with type of source event.
      *
      * @param   source  source event.
