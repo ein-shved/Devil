@@ -25,20 +25,22 @@ public abstract class ResponceHandler extends EventHandler {
     private Devil devil;
     private String type;
     public ResponceHandler (RequestID id, Flag ... flags) {
-        //TODO exclude ONCE
         super (flags);
+        super.unsetFlag(Flag.ONCE);
         this.id = id;
     }
     public void handle (Event event) {
-        ResponceEvent responce = (ResponceEvent) event;
-        if (responce.checkID(this.id)) {
-            devil.unsubscribeForEvent(this.type, this);
-            handleResponce (responce);
-        }
+        try {
+            ResponceEvent responce = (ResponceEvent) event;
+            if (responce.checkID(this.id)) {
+                devil.unsubscribeForEvent(this.type, this);
+                handleResponce (responce);
+            }
+        } catch (ClassCastException exc) {} 
     }
     public boolean subscribe (Devil devil, String responce) {
         this.devil = devil;
-        this.type = "Responce_" + responce;
+        this.type = ResponceEvent.prefix() + responce;
         return devil.subscribeForEvent(this.type, this);
     }
     protected abstract void handleResponce (ResponceEvent responce);

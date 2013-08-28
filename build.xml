@@ -15,6 +15,11 @@
     <target name="compile" depends="init"
             description="compile the source " >
         <javac srcdir="${src}" destdir="${build}" includeantruntime="false"/>
+        <exec executable="grep" output="TODO">
+            <arg value="-r"/>
+            <arg value="TODO"/>
+            <arg value="${src}"/>
+        </exec>
     </target>
     
     <target name="events_test" depends="compile"

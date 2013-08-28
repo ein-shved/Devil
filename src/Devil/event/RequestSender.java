@@ -71,10 +71,10 @@ public class RequestSender {
         return handler.getResponce();
     }
     public static boolean subscribeResponcer (Devil devil, String request_type, EventHandler responcer) {
-        return devil.subscribeForEvent("Responce_" + request_type, responcer);
+        return devil.subscribeForEvent(ResponceEvent.prefix() + request_type, responcer);
     }
     public static boolean unsubscribeResponcer (Devil devil, String request_type, EventHandler responcer) {
-        return devil.unsubscribeForEvent("Responce_" + request_type, responcer);
+        return devil.unsubscribeForEvent(ResponceEvent.prefix() + request_type, responcer);
     }
 
 }
