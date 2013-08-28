@@ -1,0 +1,8 @@
+src/Devil/event/ResponceHandler.java:        //TODO exclude ONCE
+src/Devil/event/ResponceEvent.java:     * TODO copy for Event class.
+src/Devil/Devil.java://TODO make events represents mosts of Devil methods.
+src/Devil/Devil.java://TODO start EventProcessor from Devil.main()
+src/Devil/Devil.java://TODO load modules with class path.
+src/Devil/EventManager.java: * TODO maybe BlockingSet is better?
+src/Devil/EventManager.java: * TODO start thread from Devil.main()
+src/Devil/EventManager.java:                    //TODO change all of this
